@@ -214,17 +214,30 @@
     <script src="js/scan/rpc.js"></script>
     <script src="js/scan/main.js"></script>
     <script type="text/javascript">
+        $.urlParam = function(url,name){
+            var results = new RegExp('[\?&]' + name + '=([^]*)').exec(url);
+            if (results==null){
+                return null;
+            }
+            return results[1] || 0;
+            
+}
         $().ready(function(){
             var app = new App('stock');            
             var click_cnt = 0;            
             $('#loginform img').click(function(){
                 click_cnt +=1;
                 if (click_cnt < 5) return;
-                prompt("Enter Server URL",'http://dbname.server.url/').then(function(url){
+                prompt("Enter Server URL",'http://server.url/?db=<dbname>').then(function(url){
                     click_cnt = 0;
                     try {                        
                         url = new URL(url);
                         SERVER_URL = url.origin;
+                        if (url.search.indexOf('db')){
+                            var dbname = $.urlParam(url.href,'db');
+                            app.remove();
+                            app = new App(dbname);
+                        }                        
                     }catch(e){
                         alert("Wrong Url Format");
                         $('#loginform img').click();
