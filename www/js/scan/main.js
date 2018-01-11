@@ -5,7 +5,7 @@
 var SERVER_URL = 'http://stock.vardion.com';
 function BarcodeScanner(callback) {
     this.buffer = [];
-    this.delay = 51;
+    this.delay = 101;
     this.timer = null;
     this.callback = callback;
     var _this = this;
@@ -27,7 +27,7 @@ function BarcodeScanner(callback) {
 }
 
 
-var DB_ID = 'stock-scan_';
+var DB_ID = 'stock-scan@';
 var context = {};
 
 var qweb = new QWeb2.Engine();
@@ -175,11 +175,13 @@ var App =  Backbone.View.extend({
             self.sync();                        
             DB.save('context',session.user_context);
             DB.save('session',session);            
+            self.session = session;
             $('main.login',this.el).hide()
             $('main.index-page',this.el).show();
             def.resolve(session);
         })
         .fail(function(err){            
+            $('#splash').hide();
             if (err == 'server' ) {
                 var modal = $('#modal-dialog');
                 modal.find('.modal-title').text('Login Error');
@@ -300,9 +302,7 @@ App.Execute = Backbone.View.extend({
     render:function(){
         Backbone.View.prototype.render.apply(this,arguments); 
         $('.navbar-brand').html(this.picking.get_name());        
-        var content = qweb.render('picking',{picking:this.picking} );
-        console.log(content)
-        this.$el.html( content  );
+        this.$el.html( qweb.render('picking',{picking:this.picking} )  );
     },
     activate_serial:function(ev){
         ev.preventDefault();
@@ -333,12 +333,13 @@ App.Execute = Backbone.View.extend({
     },
     on_scan:function(code){        
         if ($(':input:focus,textarea:focus').length) return;
-        var card =  $('.operation[data-product_barcode='+code+'],.operation[data-product_sku='+code+'] ',this.el);        
+        var card =  $('.operation[data-product_barcode='+code+'],.operation[data-product_sku='+code+'] ',this.el);
+        console.log(code,card);
         if (card.length){
-            $('span.increase',card).click();
+            $('button.increase',card).click();
         }else{
-            var quants = App.Picking.get_package(code);            
-            if ( quants.length ){                
+            var quants = DB.get_package(code);            
+            if ( quants && quants.length ){                
                 var ul  = this.add_package(quants[0].package_id);
                 _(quants).each(function(q){
                     card =  $('.operation[data-product_id='+ q.product_id[0] +'],',this.el);
@@ -352,8 +353,11 @@ App.Execute = Backbone.View.extend({
             }
             card = $('.operation.active.serial');            
             if (card.length){// serial number;
-                $('.desc',card).append($('span').html(code));
-                return $('.btn.increase',card).click();
+                if ( ! $('span:contains('+code +')',card).length ) {
+                    $('.desc',card).append($('<span/>').html(code));
+                    return $('button.increase',card).click();
+                }
+                return false;
             }
             return alert("Barcode not associate with any product or package");
         }        

@@ -134,26 +134,26 @@
                 </div>
                     <div class="pack container">
                         <div t-foreach="picking.get('pack_operation_ids')"  t-as="op" 
-                             t-att-class="'card border-primary mt-3 mb-3 operation ' + op.product.tracking " 
+                             t-att-class="'card border-dark mt-3 mb-3 operation ' + op.product.tracking " 
                              t-att-data-id="op.id"
                              t-att-data-ordered_qty="op.ordered_qty"
                              t-att-data-product_id="op.product.id"                     
                              t-att-data-product_barcode="op.product.barcode"
                              t-att-data-product_sku="op.product.default_code"
                              >                    
-                            <div class="card-body text-primary">
+                            <div class="card-body text-dark">
                                 <h4 class="card-title"><t t-esc="op.product.display_name"/> <t t-esc="op.ordered_qty"/> <t t-esc="op.product_uom_id[1]"/></h4>
                                 <div class="desc card-text">                            
                                 </div>
                             </div>
-                            <div class="card-footer bg-transparent border-primary" style="padding:0 !important;">
+                            <div class="card-footer bg-transparent border-dark" style="padding:0 !important;">
                                 <div class="input-group">
-                                    <button class="btn btn-primary btn-fab btn-fab-mini btn-round decrease">
+                                    <button class="btn btn-dark btn-fab btn-fab-mini btn-round decrease">
                                         <i class="material-icons">remove</i>
                                         <div class="ripple-container"></div>
                                     </button>
                                     <input type="number" class="form-control qty_done" aria-label="Worked Qty" t-att-value="op.qty_done">
-                                    <button class="btn btn-primary btn-fab btn-fab-mini btn-round increase">
+                                    <button class="btn btn-dark btn-fab btn-fab-mini btn-round increase">
                                         <i class="material-icons">add</i>
                                         <div class="ripple-container"></div>
                                     </button>

@@ -48,6 +48,27 @@ main.login {
 .picking .pack .serial .card-footer button {
     display: none;
 }
+.picking .pack .card.active {
+    -webkit-box-shadow: 0 0 4px 0 rgba(0,0,0,.14), 0 3px 4px 0 rgba(0,0,0,.12), 0 1px 5px 0 rgba(0,0,0,.2), inset 0 0 0 1px #c02130;
+    box-shadow: 0 0 4px 0 rgba(0,0,0,.14), 0 3px 4px 0 rgba(0,0,0,.12), 0 1px 5px 0 rgba(0,0,0,.2), inset 0 0 0 1px #c02130;
+    border-color: #c02130!important;
+}
+.picking .pack .card.active .card-title {
+    color: #c02130;
+}
+.picking .pack .card.active .card-footer {
+    border-color: #c02130 !important;
+}
+.picking .pack .card.active .card-footer button {
+    background-color: #c02130;
+}
+.picking .pack .card.active .card-footer {
+    border-color: #c02130 !important;
+}
+
+.picking .pack .card.success .card-footer button {
+    background-color: #c02130;
+}
 .picking .pack .card.success {
     border-color: #4caf50 !important;
     -webkit-box-shadow: 0 0 4px 0 rgba(0,0,0,.14), 0 3px 4px 0 rgba(0,0,0,.12), 0 1px 5px 0 rgba(0,0,0,.2), inset 0 0 0 1px #4caf50;

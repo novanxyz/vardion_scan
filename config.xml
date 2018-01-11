@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.vardion.stock.scan" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>Vardion Stock</name>
+<widget id="com.vardion.stock.scan" version="1.0-RC1" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+    <name>Stock Scan</name>
     <description>
-        Vardion Stock Apps
+        Vardion Stock Barcode Scan Apps
     </description>
     <author email="hello@vardion.com" href="http://vardion.com">
-        Vardion Team
+        Vardion Digital Nebula, PT
     </author>
     <content src="index.html" />
     <preference name="DisallowOverscroll" value="true" />
