@@ -114,6 +114,7 @@ var App =  Backbone.View.extend({
         qweb.add_template(tmpl);            
         this.pickings.bind('ready',_.bind(this.render,this))        
         if (!dbname) {dbname = (new URL(SERVER_URL)).host.split('.')[0];}
+        this.dbname = dbname;
         this.ensure_db(dbname);
     },
     hideAll:function(){
