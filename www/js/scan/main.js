@@ -140,13 +140,15 @@ var App =  Backbone.View.extend({
         $('#splash').show();
         login(this.dbname,username,password).then(function(session){            
             self.sync();            
+            console.log(session);
             localStorage[DB_ID + 'context'] = JSON.stringify(session.result.user_context);
             localStorage[DB_ID + 'session'] = JSON.stringify(session);
             $('main.login',this.el).hide()
             $('main.index-page',this.el).show();
             def.resolve(session);
         })
-        .fail(function(){
+        .fail(function(err){
+            console.log(err);
             var modal = $('#modal-dialog');
             modal.find('.modal-title').text('Login Error');
             modal.find('.modal-body').text('Wrong Username / Password ');
