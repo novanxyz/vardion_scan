@@ -437,9 +437,9 @@ App.Picking = Backbone.Model.extend({
                 vals['result_package_id'] = op.result_package_id;
             } 
             
-            if (op.product.tracking == 'serial'){
-                vals['pack_lot_ids'] = op.pack_lot_ids;
-            }
+//            if (op.product.tracking == 'serial'){
+//                vals['pack_lot_ids'] = op.pack_lot_ids;
+//            }
             
             var packop = [ 1,op.id,vals];
             if (op.product_qty < 0) {
