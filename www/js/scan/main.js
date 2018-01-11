@@ -40,9 +40,9 @@ function prompt(title,desc){
     var def = $.Deferred();
     $('#modal-prompt').off('show.bs.modal').on('show.bs.modal',function(ev){             
         $('.modal-title',this).html(title)  ;
-        $('textarea',this).attr('placeholder',desc);
+        $('.note',this).attr('placeholder',desc);
         $('button#ok',this).off('click').on('click',function(){               
-          var note = $('textarea.note').val().trim();
+          var note = $('.note').val().trim();
           def.resolve(note);            
         });            
       }).modal('show');    
