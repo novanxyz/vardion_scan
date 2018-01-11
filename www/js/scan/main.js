@@ -146,7 +146,9 @@ var App =  Backbone.View.extend({
         
         var tmpl = makeTemplate('operations');
         qweb.add_template(tmpl);            
-        this.pickings.bind('ready',_.bind(this.render,this));                
+        this.pickings.bind('ready',_.bind(this.render,this));
+        this.execute.bind('done',_.bind(this.openOperations,this));
+        this.listing.bind('back',_.bind(this.openOperations,this));
         this.ensure_db(dbname);
     },
     hideAll:function(){
@@ -177,8 +179,7 @@ var App =  Backbone.View.extend({
             $('main.index-page',this.el).show();
             def.resolve(session);
         })
-        .fail(function(err){
-            
+        .fail(function(err){            
             if (err == 'server' ) {
                 var modal = $('#modal-dialog');
                 modal.find('.modal-title').text('Login Error');
@@ -197,11 +198,11 @@ var App =  Backbone.View.extend({
         $('main.login',this.el).show()
         $('main.index-page',this.el).hide();
     },    
-    openOperations:function(ev){        
+    openOperations:function(ev){
         this.hideAll();        
+        this.render();        
         $('section#operations',this.el).show();                
-        $('#sync',this.el).show();
-                
+        $('#sync',this.el).show();                
     },
     openListing:function(ev){        
         this.hideAll();
@@ -231,7 +232,8 @@ var App =  Backbone.View.extend({
         .fail(_.bind(this.offline,this))
         ;
     },
-    offline:function(err){                
+    offline:function(err){  
+        alert(err);
         $('#splash').hide();
         if (err == 'server'){
             this.openLogin();
@@ -394,14 +396,10 @@ App.Execute = Backbone.View.extend({
             self.picking.set('note',note);
             self.picking.constructor.push(self.picking.toJSON())
                 .done(function(){delete self.picking.id; self.picking.destroy();});
-            self.back_to_listing();
+            self.trigger('done');
         });                
     },    
-    back_to_listing:function(){        
-        $('section').hide();
-        $('section#operations').show();        
-//        this.remove();
-    }
+
 });
 
 App.Picking = Backbone.Model.extend({
