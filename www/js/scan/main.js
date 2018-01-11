@@ -320,6 +320,7 @@ App.Execute = Backbone.View.extend({
         Backbone.View.prototype.render.apply(this,arguments); 
         $('.wrapper .header .row h1').html(this.picking.get_name());
         var content = qweb.render('picking',{picking:this.picking} );
+        console.log(content)
         this.$el.html( content  );
     },
     activate_serial:function(ev){
@@ -393,7 +394,11 @@ App.Execute = Backbone.View.extend({
         });        
     },
     confirm:function(ev){
-        var self = this;        
+        var self = this;  
+        if($('.operation.card.success').length!=$('.operation.card').length ){
+            return alert('Operation not complete, please check all quantity to meet requested');
+        }
+        
         _(this.picking.get('pack_operation_ids')).each(function(op){
             var card = $('.operations[data-id='+ op.id +']',this.el);            
             op.qty_done =  parseFloat($('input.qty_done').val());
@@ -416,7 +421,7 @@ App.Execute = Backbone.View.extend({
     back_to_listing:function(){        
         $('section').hide();
         $('section#operations').show();        
-        this.remove();
+//        this.remove();
     }
 });
 
