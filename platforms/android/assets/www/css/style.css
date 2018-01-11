@@ -1,0 +1,64 @@
+.hidden{display: none !important;}
+.section{margin-top:70px;}
+main.login {
+    width: 100vw;
+    height: 100vh;
+    padding: 25vh 10vw;
+    background: url(../img/bg.jpg);
+}
+.login-page {
+    padding: 16px;
+    background: rgba(255,255,255,0.5);
+}
+.login-page .text-center {
+    margin: 0 0 18px;
+}
+.navbar-collapse.in {
+    display: block;
+}
+#operations .card {
+    background: url(../img/bg.jpg);
+    background-repeat: no-repeat;
+    background-size: 136%;
+}
+.pickings .pick-items {
+    font-size: 14px;
+    font-weight: normal;
+}
+.picking .jumbotron.jumbotron-fluid {
+    margin-top: -14px;
+}
+.lead span{display: block}
+.picking .pack .card .desc span {
+    background: black;
+    width: 100%;
+    display: block;
+    padding: 4px;
+    text-align: center;
+    color: white;
+    font-size: 16px;
+}
+.picking .pack .card-title {
+    font-size: 22px;
+}
+.picking .pack .card-footer input {
+    text-align: center;
+    font-size: 22px;
+}
+.picking .pack .serial .card-footer button {
+    display: none;
+}
+.picking .pack .card.success {
+    border-color: #4caf50 !important;
+    -webkit-box-shadow: 0 0 4px 0 rgba(0,0,0,.14), 0 3px 4px 0 rgba(0,0,0,.12), 0 1px 5px 0 rgba(0,0,0,.2), inset 0 0 0 1px #4caf50;
+    box-shadow: 0 0 4px 0 rgba(0,0,0,.14), 0 3px 4px 0 rgba(0,0,0,.12), 0 1px 5px 0 rgba(0,0,0,.2), inset 0 0 0 1px #4caf50;
+}
+.picking .pack .card.success .card-title {
+    color: #4caf50;
+}
+.picking .pack .card.success .card-footer {
+    border-color: #4caf50 !important;
+}
+.picking .pack .card.success .card-footer button {
+    background-color: #4caf50;
+}

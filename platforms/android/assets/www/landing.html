@@ -1,0 +1,39 @@
+<section class="page landing" id="landing" style="z-index:10000;height: 100vh">
+    <div class="landing-content">
+        <div class=" landing-texts">
+            <h1 class="heading">Welcome!</h1>
+            <div class="landing-desc">
+                <h5>Vardion provies the fastest and easiest way to order your food.</h5>
+                <h5>Begin by tapping the button below.</h5>
+            </div>
+            <div class="container logo-landing" >
+                <img src="/web/binary/company_logo" style="height: auto; width: 250px;" />
+            </div>
+        </div>
+    </div>
+    <div class=" landing-footer ">
+        <div class="col-md-12  landing-field guest">
+            <form class="landing-form guest"  onsubmit="return false">
+                <div class="mdl-textfield mdl-js-textfield textfield-demo landing-textfield" >
+<!--                  <input class="form-control" type="number" id="Table" name="table_code" placeholder="Table" maxLength="4" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" />-->
+                 <input class="form-control" type="text" id="Guest" name="name" placeholder="Guest Name" value=""/>
+                 <input class="form-control" type="text" min="1"  name="code" placeholder="Guest Code" value="{{guest.ref if guest.ref}}"/>
+                </div>
+                <div class="col-md-12 landing-btn">
+                    <button class="btn waves-button waves-effect"  style="width: 100%;background: white" id="landing-btn">Start order</button>
+                </div>
+            </form>
+        </div> 
+        <div class="col-md-12 landing-field waiter" style="display: none">
+            <form class="landing-form waiter"  >
+                <div class="mdl-textfield mdl-js-textfield textfield-demo landing-textfield" >                  
+                  <input class="form-control" type="text"     name="username" placeholder="Username" />
+                  <input class="form-control" type="password" name="password"  placeholder="Password" />
+                </div>
+                <div class="col-md-12 landing-btn">
+                    <button class="btn waves-button waves-effect"  style="width: 100%;background: white" id="login-btn">Login</button>
+                </div>
+            </form>
+        </div>        
+    </div>    
+</section>
