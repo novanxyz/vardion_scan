@@ -13,7 +13,7 @@
 
   </head>
   <body >
-    <main class="login">
+    <main class="login" style="display: none">
       <div class="px-lg-md login-page">
           <div class="container">
               <div id="loginform" >
@@ -21,11 +21,11 @@
                         <img src="img/logo.png" width="50%" />
                     </div>
                     <div class="form-group">
-                      <label for="exampleInputEmail1">Email address</label>
+                      <label for="username">Email address</label>
                       <input type="" class="form-control" id="username" aria-describedby="emailHelp" placeholder="Enter email" name="username">
                     </div>
                     <div class="form-group">
-                      <label for="exampleInputPassword1">Password</label>
+                      <label for="password">Password</label>
                       <input type="password" class="form-control" id="password" placeholder="Password" name="password">
                     </div>
                     <a id="loginbutton" class="btn btn-primary btn-lg btn-block text-white">Submit</a>
@@ -33,15 +33,17 @@
           </div>
       </div>
     </main>
-      
-      
-    <main class="index-page hidden">
+    <main class="spash" id="splash" style="width: 100vw;height: 100vh;z-index: 1000;display: none">
+        <span>SPLASH</span>
+    </main>
+    <main class="index-page">
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
             <a class="navbar-brand" href="#">Delivery Zone</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="true" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
+            <button id="sync" class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="true" aria-label="Toggle navigation">
+                <span id="worked-cnt" style="display: none">3</span>
+                <i class="material-icons">cached</i>
             </button>
-            <div class="navbar-collapse collapse" id="navbarNav" style="">
+<!--            <div class="navbar-collapse collapse" id="navbarNav" style="">
               <ul class="navbar-nav">
                 <li class="nav-item">
                   <a class="nav-link"href="#operations" id="top_op" href="#">Operation</a>
@@ -53,7 +55,7 @@
                   <a class="nav-link" href="#" id="download" >Download</a>
                 </li>
               </ul>
-            </div>
+            </div>-->
         </nav>
 
         <section class="section section-basic" id="operations">
@@ -104,9 +106,9 @@
                 </div>
             </div>    
         </section>
-        <section class="section section-full-screen page" id="execute" style="display: none">
-            <div class="picking">
-                <div class="jumbotron jumbotron-fluid text-center bg-primary text-white" t-log="picking">
+        <section class="section section-full-screen page" id="execute" style="display: none" t-log="this">
+            <div class="picking" t-log="picking">
+                <div class="jumbotron jumbotron-fluid text-center bg-primary text-white" >
                     <div class="container">
                         <h1 class="display-3"><t t-esc="picking.get_name()"/></h1>
                         <p class="lead">
@@ -123,7 +125,8 @@
                     </div>
                 </div>
                     <div class="pack container">
-                        <div t-foreach="picking.get('pack_operation_ids')"  t-as="op" t-att-class="'card border-primary mt-3 mb-3 operation ' + op.product.tracking" 
+                        <div t-foreach="picking.get('pack_operation_ids')"  t-as="op" 
+                             t-att-class="'card border-primary mt-3 mb-3 operation ' + op.product.tracking " 
                              t-att-data-id="op.id"
                              t-att-data-ordered_qty="op.ordered_qty"
                              t-att-data-product_id="op.product.id"                     
@@ -159,9 +162,6 @@
             </div>    
         </section>
     </main>
-    
-
-      
     <!--modal-->
     <div class="modal " id="modal-dialog" tabindex="-1" role="dialog" aria-labelledby="modal-label" aria-hidden="true">
       <div class="modal-dialog" role="document">
@@ -180,13 +180,32 @@
         </div>
       </div>
     </div>
+    <!--modal-->
+    <div class="modal " id="modal-prompt" tabindex="-1" role="dialog" aria-labelledby="modal-label" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modal-label">New message</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <textarea class="note" style="width: 96%">                    
+              </textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" data-dismiss="modal" class="btn btn-secondary">Close</button>
+            <button type="button" data-dismiss="modal" class="ok btn btn-default btn-simple" id="ok" >Confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <!--<script type="text/javascript" src="cordova.js"></script>-->
+<!--    <script type="text/javascript" src="cordova.js"></script>-->
     <script src="js/jquery.min.js"></script>
-    <script src="js/jquery.session.js"></script>
-    <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <!-- Then Material JavaScript on top of Bootstrap JavaScript -->
     <script src="js/materials.min.js"></script>
@@ -196,73 +215,24 @@
     <script src="js/scan/rpc.js"></script>
     <script src="js/scan/main.js"></script>
     <script type="text/javascript">
-$().ready(function(){
-    var session = $.session.get("login");
-    if(session){
-        var app = new App();            
-        var transparent = true;        
-        function debounce(func, wait, immediate) {
-            var timeout;
-            return function() {
-                var context = this, args = arguments;
-                clearTimeout(timeout);
-                timeout = setTimeout(function() {
-                    timeout = null;
-                    if (!immediate) func.apply(context, args);
-                }, wait);
-                if (immediate && !timeout) func.apply(context, args);
-            };
-        };
-        $('main.login').addClass('hidden');
-        $('main.index-page').removeClass('hidden');
-    }else{
-        $("#loginbutton").on("click",function() {
-            var u = $("#username").val();
-            var p = $("#password").val();
-            if(u != '' && p!= '') {
-                login('stock',u,p)
-                    .then(function(res){
-                        $.session.set("login", res.session_id);
-//                        console.log($.session.get("login"));
-                        var app = new App();            
-                        var transparent = true;        
-                        function debounce(func, wait, immediate) {
-                            var timeout;
-                            return function() {
-                                var context = this, args = arguments;
-                                clearTimeout(timeout);
-                                timeout = setTimeout(function() {
-                                    timeout = null;
-                                    if (!immediate) func.apply(context, args);
-                                }, wait);
-                                if (immediate && !timeout) func.apply(context, args);
-                            };
-                        };
-                        $('main.login').addClass('hidden');
-                        $('main.index-page').removeClass('hidden');
-
-                    })
-                    .fail(function(){
-                        var modal = $('#modal-dialog');
-                        modal.find('.modal-title').text('Login Error');
-                        modal.find('.modal-body').text('Wrong Username / Password ');
-                        $('#modal-dialog').modal();
-                    });
-            }else{
-              var modal = $('#modal-dialog');
-                modal.find('.modal-title').text('Login Error');
-                modal.find('.modal-body').text('Please Input Username & Password ');
-                $('#modal-dialog').modal();  
-            };
-            return false;
+        $().ready(function(){
+            var app = new App('stock');            
+            var click_cnt = 0;            
+            $('#loginform img').click(function(){
+                click_cnt +=1;
+                if (click_cnt < 5) return;
+                prompt("Enter Server URL").then(function(url){
+                    try {
+                        click_cnt = 0;
+                        url = new URL(url);
+                        SERVER_URL = url.origin;
+                    }catch(e){
+                        alert("Wrong Url Format");
+                        $('#loginform img').click();
+                    }
+                });
+            });
         });
-    }
-});
-
-    </script>
-    <script>
-        
-        
-    </script>
+    </script>   
   </body>
 </html>
