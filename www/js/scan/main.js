@@ -127,12 +127,10 @@ var App =  Backbone.View.extend({
     el: $('body'),
     events: {
 		'*'                      : 'openOperations',
-	    'click .navbar'         : 'openOperations',
+	    'click .navbar'          : 'openOperations',
 	    'click #operations .card': 'openListing',
-        'click #pickings .card'  : 'openExecute',
-        'click #download'        : 'sync',
-        'click #upload'          : 'sync',
-        'click #sync'          : 'sync',
+        'click #pickings   .card': 'openExecute',
+        'click #sync'            : 'sync',
         'click #loginbutton'     : 'login',
 	},
     initialize: function(dbname){
@@ -148,8 +146,7 @@ var App =  Backbone.View.extend({
         
         var tmpl = makeTemplate('operations');
         qweb.add_template(tmpl);            
-        this.pickings.bind('ready',_.bind(this.render,this))        
-        
+        this.pickings.bind('ready',_.bind(this.render,this));                
         this.ensure_db(dbname);
     },
     hideAll:function(){
@@ -162,6 +159,7 @@ var App =  Backbone.View.extend({
         if (!workeds.length && _(context).isEmpty() ) {
             this.openLogin();
         }else{
+            this.session = DB.load('session',"{'name':'Warehouse'}");
             this.sync();
         }
     },
@@ -201,13 +199,7 @@ var App =  Backbone.View.extend({
     },    
     openOperations:function(ev){        
         this.hideAll();        
-        this.pickings.load();
-        $('section#operations',this.el).show();        
-        var cnt = $('#worked-cnt').hide();
-        var workeds = DB.get_workeds();
-        if (workeds.length){
-            cnt.html(workeds.length).show();
-        }
+        $('section#operations',this.el).show();                
         $('#sync',this.el).show();
                 
     },
@@ -226,30 +218,12 @@ var App =  Backbone.View.extend({
         var pickings = DB.get_backlogs();
         var picking = _(pickings).find({'id':picking_id});        
         if ( picking.length  < 1 ) return alert("You already done this pickings.\nPlease report to your manager if any correction");        
-        var pick = new App.Picking(picking);
-        //var execute = new App.Execute(pick);     
+        var pick = new App.Picking(picking);        
         this.execute.start(pick);
-    },
-    upload:function(){        
-        var self = this;
-        var offline_fnct = _.bind(this.offline,this);
-        var ret = this.pickings.push()
-            .done(function(res){                
-                self.download().fail(offline_fnct);                
-            })
-            .fail(offline_fnct);        
-    },
-    download:function(ev){
-        var self = this;
-        
-        //if ($(ev.currentTarget).disable())
-        return this.pickings.fetch().then(function(pickings){
-            self.pickings = new App.PickingCollection(pickings);
-            self.pickings.trigger('ready');
-        }).fail(_.bind(this.offline,this));
-    },    
+    },      
     sync:function(){
         var self = this;
+        $('#splash').show();
         return this.pickings.fetch().then(function(pickings){
                 var expected_ids = _(pickings).pluck('id');
                 self.pickings.push(expected_ids);
@@ -257,19 +231,25 @@ var App =  Backbone.View.extend({
         .fail(_.bind(this.offline,this))
         ;
     },
-    offline:function(err){        
-        console.log(err);
+    offline:function(err){                
         $('#splash').hide();
         if (err == 'server'){
             this.openLogin();
         }else{
-            $('h1.title',this.el).html("You're offline");        
+            $('.navbar-brand',this.el).html("You're offline");        
             this.pickings.load();
         }
     },
     render:function(){
         $('.wrapper .header h1.title').html();
         $('#splash').hide();
+        $('.navbar-brand').html(this.session.name);
+        var cnt = $('#worked-cnt').hide();
+        var workeds = DB.get_workeds();
+        if (workeds.length){
+            cnt.html(workeds.length).show();
+        }
+        this.pickings.load();
         $('#operations').html( qweb.render('operations',{operations:this.pickings.populate()}) );
     },
     
@@ -289,9 +269,8 @@ App.Listing = Backbone.View.extend({
     render:function(){
         Backbone.View.prototype.render.apply(this,arguments);     
         this.$el.html( qweb.render('listing',{pickings:this.pickings.models}) );
-        var picking = this.pickings.models[0];        
-        var location = picking.get('picking_type_code') == 'incoming' ? picking.get('location_dest_id')[1] :picking.get('location_id')[1] ;                
-        $('.wrapper .header h1.title').html(location);
+        var picking = this.pickings.models[0];                
+        $('.navbar-brand').html(picking.get('picking_type_id')[1]);
     },
 });
 
@@ -318,7 +297,7 @@ App.Execute = Backbone.View.extend({
     },
     render:function(){
         Backbone.View.prototype.render.apply(this,arguments); 
-        $('.wrapper .header .row h1').html(this.picking.get_name());
+        $('.navbar-brand').html(this.picking.get_name());        
         var content = qweb.render('picking',{picking:this.picking} );
         console.log(content)
         this.$el.html( content  );
@@ -432,19 +411,16 @@ App.Picking = Backbone.Model.extend({
     },
     parse:function(json){        
         var self = this;
-        Backbone.Model.prototype.parse.apply(this,arguments);        
-//        this.operations.models = _.reduce(json.pack_operation_ids,function(op){return new App.Operation(op)},[]);        
+        Backbone.Model.prototype.parse.apply(this,arguments);
         _.map(json.pack_operation_ids,function(op){
-            //console.log(op.product_id[0],App.Picking.get_product(op.product_id[0]));
             op.product = DB.get_product(op.product_id[0] );
         });
-//        console.log(this);
+
     },
     toJSON:function(json){        
         var ret = {'note':this.get('note') ,'picking_type_id' : this.get('picking_type_id')[0],id:this.id};
         ret['pack_operation_ids'] =  _.map(this.get('pack_operation_ids'),function(op){
-            var vals = {'qty_done':op['qty_done'] ,
-                        //linked_move_operation_ids:op.linked_move_operation_ids,
+            var vals = {'qty_done':op['qty_done'] ,                        
                         'product_id':op.product_id[0] };
             if (op.result_package_id){
                 vals['result_package_id'] = op.result_package_id;
@@ -556,8 +532,8 @@ App.PickingCollection = Backbone.Collection.extend({
                 search_read('product.product',[['id','in',prod_ids]],
                         ['name','display_name','barcode','default_code','storage_loc','tracking'])
                     .then(function(products){                       
-                        DB.save('products',products.records);
-                        self.load();                
+                        DB.save('products',products.records);                        
+                        self.trigger('ready');
                 });                   
                 search_read('stock.quant',[ ['package_id','!=',false],['location_id','in', loc_ids ]],
                         ['name','product_id','qty','product_uom_id','location_id','package_id'])
@@ -568,18 +544,16 @@ App.PickingCollection = Backbone.Collection.extend({
                 def.resolve(pickings);                
                 DB.save('backlogs',pickings);                
             }); 
-           }).fail(function(err) {
-               console.log(err);
-//               if (err === 'server') return window.location = SERVER_URL+'/web/login';
-               return def.reject([]);
+           }).fail(function(err) {               
+               return def.reject(err);
            });
         return def.promise();
     },
     push:function(expecteds){
-        var workeds = JSON.parse(localStorage[DB_ID + 'workeds'] || '[]');        
+        var workeds = DB.get_workeds();
         var filtered = _(workeds).filter(function(w) {return expecteds.indexOf(w.id) >= 0; } );
-        localStorage[DB_ID + 'workeds'] = JSON.stringify(filtered);
-        workeds = JSON.parse(localStorage[DB_ID + 'workeds'] || '[]');        
+        DB.save('workeds',filtered);
+        workeds = DB.get_workeds();
         if (workeds.length){                  
             var defs = workeds.map(this.model.push,[]);
             return $.when.apply($,defs);
@@ -589,8 +563,7 @@ App.PickingCollection = Backbone.Collection.extend({
         
     },
     load:function(){        
-        this.parse(DB.get_backlogs());
-        this.trigger('ready');
+        this.parse(DB.get_backlogs());        
     },
     parse:function(result){        
         this.models = _.map(result,function(p){return new App.Picking(p);});                
