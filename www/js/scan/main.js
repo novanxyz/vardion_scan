@@ -388,6 +388,14 @@ App.Execute = Backbone.View.extend({
             if (!_.isEmpty(pack)){
                 op.result_package_id = pack;
             }
+            if (op.product.tracking == 'serial'){
+                op.pack_lot_ids = [];
+                $('.desc span',card).each(function(idx){
+                    op.pack_lot_ids.push([0,0,{'name': $(this).text()}]); 
+                });
+            }
+            
+            
         });
         console.log(this.picking.get('pack_operation_ids'));
         
@@ -419,10 +427,16 @@ App.Picking = Backbone.Model.extend({
         var ret = {'note':this.get('note') ,'picking_type_id' : this.get('picking_type_id')[0],id:this.id};
         ret['pack_operation_ids'] =  _.map(this.get('pack_operation_ids'),function(op){
             var vals = {'qty_done':op['qty_done'] ,                        
-                        'product_id':op.product_id[0] };
+                        'product_id':op.product_id[0],
+                        };
             if (op.result_package_id){
                 vals['result_package_id'] = op.result_package_id;
             } 
+            
+            if (op.product.tracking == 'serial'){
+                vals['pack_lot_ids'] = op.pack_lot_ids;
+            }
+            
             var packop = [ 1,op.id,vals];
             if (op.product_qty < 0) {
                 packop = [2,op.id, false];
