@@ -191,8 +191,7 @@
             </button>
           </div>
           <div class="modal-body">
-              <textarea class="note" style="width: 96%">                    
-              </textarea>
+              <input class="note" style="width: 96%"/>              
           </div>
           <div class="modal-footer">
             <button type="button" data-dismiss="modal" class="btn btn-secondary">Close</button>
@@ -221,9 +220,9 @@
             $('#loginform img').click(function(){
                 click_cnt +=1;
                 if (click_cnt < 5) return;
-                prompt("Enter Server URL").then(function(url){
-                    try {
-                        click_cnt = 0;
+                prompt("Enter Server URL",'http://dbname.server.url/').then(function(url){
+                    click_cnt = 0;
+                    try {                        
                         url = new URL(url);
                         SERVER_URL = url.origin;
                     }catch(e){
