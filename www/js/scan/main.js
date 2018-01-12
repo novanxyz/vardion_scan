@@ -1,18 +1,25 @@
 /* global _ */
 /* global Backbone */
 /* version 1.0.0 */
-
 var SERVER_URL = 'http://stock.vardion.com';
+var DB_ID = 'stock-scan@';
+var context = {};
+
+var qweb = new QWeb2.Engine();
+qweb.preprocess_node = function(){
+    //console.log(this.node.Type,this.node);
+};
+var ENTER_KEY =  13;
 function BarcodeScanner(callback) {
     this.buffer = [];
-    this.delay = 101;
+    this.delay = 201;
     this.timer = null;
     this.callback = callback;
     var _this = this;
     window.addEventListener('keypress',function(e){            
         if (e == null) {e = window.event;}            
         var charCode = typeof e.which === "number" ? e.which : e.keyCode;            
-        if ((charCode === 13) && (_this.buffer.length)) {
+        if ((charCode === ENTER_KEY) && (_this.buffer.length)) {
             e.preventDefault();                                
             var code = _this.buffer.join(""); 
             _this.buffer = [];
@@ -25,16 +32,6 @@ function BarcodeScanner(callback) {
 
     });
 }
-
-
-var DB_ID = 'stock-scan@';
-var context = {};
-
-var qweb = new QWeb2.Engine();
-qweb.preprocess_node = function(){
-    //console.log(this.node.Type,this.node);
-};
-
 
 function prompt(title,desc){
     var def = $.Deferred();
@@ -285,7 +282,8 @@ App.Execute = Backbone.View.extend({
         'click  .operation .increase': 'increase_qty',
         'change .operation input.qty_done': 'onchange_qty',
         'click  button.confirm': 'confirm',
-        'click  .operation.serial': 'activate_serial'
+        'click  .operation.serial': 'activate_serial',
+        'keypress .operation.serial input': 'add_serial'
     },
     initialize:function(picking){                            
        var tmpl = makeTemplate('picking',this.$el.html());       
@@ -310,6 +308,14 @@ App.Execute = Backbone.View.extend({
         $('.operation.serial').removeClass('active');
         $(ev.currentTarget).addClass('active');
     },
+    add_serial:function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        var charCode = typeof ev.which === "number" ? ev.which : ev.keyCode;
+        if (charCode === ENTER_KEY) {
+            this.on_scan(ev.currentTarget.value);
+        }
+    },
     decrease_qty:function(ev){        
         ev.preventDefault();
         ev.stopPropagation();
@@ -333,8 +339,7 @@ App.Execute = Backbone.View.extend({
     },
     on_scan:function(code){        
         if ($(':input:focus,textarea:focus').length) return;
-        var card =  $('.operation[data-product_barcode='+code+'],.operation[data-product_sku='+code+'] ',this.el);
-        console.log(code,card);
+        var card =  $('.operation[data-product_barcode='+code+'],.operation[data-product_sku='+code+'] ',this.el);        
         if (card.length){
             $('button.increase',card).click();
         }else{
@@ -380,7 +385,7 @@ App.Execute = Backbone.View.extend({
     },
     confirm:function(ev){
         var self = this;  
-        if($('.operation.card.success').length!=$('.operation.card').length ){
+        if( $('.operation.card.success').length !== $('.operation.card').length ){
             return alert('Operation not complete, please check all quantity to meet requested');
         }
         
@@ -392,16 +397,17 @@ App.Execute = Backbone.View.extend({
             if (!_.isEmpty(pack)){
                 op.result_package_id = pack;
             }
-            if (op.product.tracking == 'serial'){
+            if (op.product.tracking === 'serial'){
                 op.pack_lot_ids = [];
-                $('.desc span',card).each(function(idx){
-                    op.pack_lot_ids.push([0,0,{'name': $(this).text()}]); 
-                });
+                var spans = $('.desc span',card.get(0)).toArray();                
+                for (var sp in spans ) {                   
+                    op.pack_lot_ids.push([0,0,{'lot_name': spans[sp].innerText ,'qty':1,'plus_visible':true}]); 
+                }                
             }
             
             
         });
-        console.log(this.picking.get('pack_operation_ids'));
+//        console.log("BEFORE CONFIRM :",this.picking.get('pack_operation_ids'));
         
         prompt(self.picking.get_name(),"Enter Note for Picking")
         .then(function(note){
@@ -427,19 +433,19 @@ App.Picking = Backbone.Model.extend({
         });
 
     },
-    toJSON:function(json){        
-        var ret = {'note':this.get('note') ,'picking_type_id' : this.get('picking_type_id')[0],id:this.id};
+    toJSON:function(){        
+        var ret = {'note':this.get('note') ,'picking_type_id' : this.get('picking_type_id')[0],id:this.id , name:this.get('name')};
         ret['pack_operation_ids'] =  _.map(this.get('pack_operation_ids'),function(op){
-            var vals = {'qty_done':op['qty_done'] ,                        
-                        'product_id':op.product_id[0],
+            var vals = {'qty_done'  : op['qty_done'] ,                        
+                        'product_id': op.product_id[0],
                         };
             if (op.result_package_id){
                 vals['result_package_id'] = op.result_package_id;
             } 
             
-//            if (op.product.tracking == 'serial'){
-//                vals['pack_lot_ids'] = op.pack_lot_ids;
-//            }
+            if (op.product.tracking === 'serial'){
+                vals['pack_lot_ids'] = op.pack_lot_ids;
+            }
             
             var packop = [ 1,op.id,vals];
             if (op.product_qty < 0) {
@@ -447,7 +453,7 @@ App.Picking = Backbone.Model.extend({
             }            
             return packop;
         });
-        
+        console.log( "JSON" , ret['pack_operation_ids']);
         return ret;
     },    
     get_name:function(){
@@ -472,39 +478,52 @@ App.Picking = Backbone.Model.extend({
         return this.get('picking_type_code');
     },    
     is_done:function(){
-        return  _(this.get('pack_operation_ids')).all(function(op){return op.ordered_qty == op.done_qty;});
+        return  _(this.get('pack_operation_ids')).all(function(op){return op.ordered_qty === op.done_qty;});
     },
     get_state_class:function(){
         return this.is_done() ? 'complete' : '';
     },
+    get_total_product:function(){
+        return _(this.get('pack_operation_ids')).reduce(function(sum,op){return sum+ op.ordered_qty;},0);
+    }
 },{ 
-    push:function(picking){
+    push:function(picking){                
         var packages = _(picking.pack_operation_ids).groupBy(function(op){return op[2]['result_package_id'];});
         var defs = [];
-        picking.pack_operation_ids = [];        
+        picking.pack_operation_ids = [];
         for (var pack in packages){                        
             if (pack != 'undefined') {                                
                 defs.push(
                     call('stock.quant.package','find_or_create',[pack ]).then(function(pack_id){                        
-                        _(packages[pack]).each(function(op){ op[2].result_package_id = pack_id;})
+                        _(packages[pack]).each(function(op){ op[2].result_package_id = pack_id;});
                         picking.pack_operation_ids = picking.pack_operation_ids.concat(packages[pack]);                        
                     })
                 );
             }else{
-                picking.pack_operation_ids.push(packages[pack]);
+                picking.pack_operation_ids = picking.pack_operation_ids.concat(packages[pack]);
             }            
-        }        
-        return $.when.apply($, defs).done(function(){            
+        }                
+        return $.when.apply($, defs).done(function(){
             call('stock.picking','write',[picking.id,picking])
             .then(function(){
                 call('stock.picking','do_transfer',[[picking.id]])
-                .then(function(){   
-                    App.Picking.localize(picking.id);
-                    });            
+                .then(function(){App.Picking.localize(picking.id);})                            
+                .fail(function(err){
+                    if ( err=='server'){
+                        alert('Order #' + picking.name + " failed to validate.\nUse Web Interface to resolve");
+                        App.Picking.localize(picking.id);
+                    }else {
+                        App.Picking.localize(picking.id,picking);
+                    }
                 })
+            })
             .fail(function(err){
-                console.log(this,err);            
-                App.Picking.localize(picking.id,picking);
+                if ( err=='server'){
+                    alert('Order #' + picking.name + " failed to validate.\nUse Web Interface to resolve");
+                    App.Picking.localize(picking.id);
+                }else {
+                    App.Picking.localize(picking.id,picking);
+                }
             }); 
         });       
     },                                                                                                                                  
@@ -541,7 +560,7 @@ App.PickingCollection = Backbone.Collection.extend({
                 var prod_ids =_.reduce(ops.records,function(col,p){ return col.concat(p.product_id[0]); },[]);
                 var loc_ids  = _.reduce(ops.records,function(col,p){ return col.concat(p.location_id[0],p.location_dest_id[0] ) ; },[]);
                 pickings = _.map(pickings,function(p){
-                    var pops = _.filter(ops.records,function(op){return op.picking_id[0] == p.id; })
+                    var pops = _.filter(ops.records,function(op){return op.picking_id[0] == p.id; });
                     p['pack_operation_ids'] = pops;                    
                     return p;
                 });
