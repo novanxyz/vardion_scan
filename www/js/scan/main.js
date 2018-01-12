@@ -42,6 +42,11 @@ function prompt(title,desc){
           var note = $('.note').val().trim();
           def.resolve(note);            
         });            
+        $('button.cancel',this).off('click').on('click',function(){               
+          var note = $('.note').val().trim();
+          def.reject(note);            
+        });            
+        
       }).modal('show');    
     return def.promise();
 }

@@ -202,7 +202,7 @@
               <input class="note" style="width: 96%"/>              
           </div>
           <div class="modal-footer">
-            <button type="button" data-dismiss="modal" class="btn btn-secondary">Close</button>
+            <button type="button" data-dismiss="modal" class="cancel btn btn-secondary">Close</button>
             <button type="button" data-dismiss="modal" class="ok btn btn-default btn-simple" id="ok" >Confirm</button>
           </div>
         </div>
@@ -227,9 +227,8 @@
             if (results==null){
                 return null;
             }
-            return results[1] || 0;
-            
-}
+            return results[1] || 0;            
+        }
         $().ready(function(){
             var app = new App('stock');            
             var click_cnt = 0;            
@@ -251,6 +250,12 @@
                         $('#loginform img').click();
                     }
                 });
+            });
+            $(window).scroll(function() {
+                $('body').removeClass('scrolled');
+                if($(window).scrollTop() >=  200) {
+                    $('body').addClass('scrolled');
+                }
             });
         });
     </script>   

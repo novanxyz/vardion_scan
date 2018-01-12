@@ -8,39 +8,32 @@
   },
   "installed_plugins": {
     "cordova-plugin-battery-status": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
+      "PACKAGE_NAME": "com.vardion.stock.scan"
     },
     "cordova-plugin-camera": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
+      "PACKAGE_NAME": "com.vardion.stock.scan"
     },
     "cordova-plugin-console": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
+      "PACKAGE_NAME": "com.vardion.stock.scan"
     },
     "cordova-plugin-contacts": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
+      "PACKAGE_NAME": "com.vardion.stock.scan"
     },
     "cordova-plugin-device": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
+      "PACKAGE_NAME": "com.vardion.stock.scan"
     },
     "cordova-plugin-device-motion": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
+      "PACKAGE_NAME": "com.vardion.stock.scan"
     },
     "cordova-plugin-device-orientation": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
+      "PACKAGE_NAME": "com.vardion.stock.scan"
     },
     "cordova-plugin-dialogs": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
+      "PACKAGE_NAME": "com.vardion.stock.scan"
     },
-    "cordova-plugin-whitelist": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
-    },
-    "cordova-plugin-file-transfer": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
+    "cordova-plugin-file": {
+      "PACKAGE_NAME": "com.vardion.stock.scan"
     }
   },
-  "dependent_plugins": {
-    "cordova-plugin-file": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
-    }
-  }
+  "dependent_plugins": {}
 }
