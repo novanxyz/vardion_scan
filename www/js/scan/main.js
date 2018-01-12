@@ -69,15 +69,6 @@ function call(model,method,args){
         return rpc(SERVER_URL+'/web/dataset/call_kw/' + model +'/' + method,params);    
 }
 
-//function write(model,id,data){
-//    var params = {};                
-//
-//    params.model = model;
-//    params.method = 'write';        
-//    params.args = [id,data];
-//    params.kwargs = {context : this.context};        
-//    return call('/web/dataset/call_kw/' + model +'/write',params);
-//},
 function search_read(model,domain,fields){
     return rpc(SERVER_URL+'/web/dataset/search_read',
         { model  : model,
@@ -87,7 +78,7 @@ function search_read(model,domain,fields){
           offset : 0,
           context: context,
         }
-       )
+       );
 }
 function makeTemplate(name,tmpl){
     tmpl = tmpl  ? tmpl : $('#'+name).html()
@@ -98,8 +89,7 @@ function makeTemplate(name,tmpl){
 
 var DB = {    
     get_backlogs:function(){
-        return this.load('backlogs');
-        
+        return this.load('backlogs');       
     },
     get_workeds:function(){
         return this.load('workeds');        
@@ -123,7 +113,7 @@ var DB = {
     save:function(name,data){
         localStorage[DB_ID + name] = JSON.stringify(data);        
     }
-}
+};
 
 var App =  Backbone.View.extend({
     el: $('body'),
@@ -151,16 +141,16 @@ var App =  Backbone.View.extend({
         this.pickings.bind('ready',_.bind(this.render,this));
         this.execute.bind('done',_.bind(this.openOperations,this));
         this.listing.bind('back',_.bind(this.openOperations,this));
-        this.ensure_db(dbname);
+        this.ensure_db();
     },
     hideAll:function(){
         $('section',this.el).hide();        
         $('#sync',this.el).hide();
     },
-    ensure_db:function(dbname){        
-        context     = DB.load('context','{}');
-        var workeds = DB.get_workeds();
-        if (!workeds.length && _(context).isEmpty() ) {
+    ensure_db:function(){        
+        context      = DB.load('context','{}');
+        var backlogs = DB.get_backlogs();
+        if (!backlogs.length && _(context).isEmpty() ) {
             this.openLogin();
         }else{
             this.session = DB.load('session',"{'name':'Warehouse'}");
@@ -174,11 +164,19 @@ var App =  Backbone.View.extend({
         var password = $('input#password').val();
         $('#splash').show();
         login(this.dbname,username,password).then(function(session){            
+            if (session.server_version < 10.0) {
+                var modal = $('#modal-dialog');
+                modal.find('.modal-title').text('Not Compatible Server');
+                modal.find('.modal-body').text('Only working for Odoo/Vardion version 10.0');
+                $('#modal-dialog').modal();
+                def.reject();
+                return ;
+            }
             self.sync();                        
             DB.save('context',session.user_context);
             DB.save('session',session);            
             self.session = session;
-            $('main.login',this.el).hide()
+            $('main.login',this.el).hide();
             $('main.index-page',this.el).show();
             def.resolve(session);
         })
@@ -199,7 +197,7 @@ var App =  Backbone.View.extend({
         return def.promise();
     },
     openLogin:function(ev){
-        $('main.login',this.el).show()
+        $('main.login',this.el).show();
         $('main.index-page',this.el).hide();
     },    
     openOperations:function(ev){
@@ -239,7 +237,7 @@ var App =  Backbone.View.extend({
     offline:function(err){  
         alert(err);
         $('#splash').hide();
-        if (err == 'server'){
+        if (err === 'server'){
             this.openLogin();
         }else{
             $('.navbar-brand',this.el).html("You're offline");        
@@ -283,11 +281,11 @@ App.Listing = Backbone.View.extend({
 App.Execute = Backbone.View.extend({
     el: $('#execute'),    
     events: {
-        'click  .operation .decrease': 'decrease_qty',
-        'click  .operation .increase': 'increase_qty',
+        'click  .operation .decrease'   : 'decrease_qty',
+        'click  .operation .increase'   : 'increase_qty',
         'change .operation input.qty_done': 'onchange_qty',
-        'click  button.confirm': 'confirm',
-        'click  .operation.serial': 'activate_serial',
+        'click  button.confirm'         : 'confirm',
+        'click  .operation.serial'      : 'activate_serial',
         'keypress .operation.serial input': 'add_serial'
     },
     initialize:function(picking){                            
