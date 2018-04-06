@@ -53,12 +53,12 @@ function prompt(title,desc){
 
 function login(db, login, password){
     var params = {};
-//        params.db = db;
-//        params.login = login;
-//        params.password = password;
-        params.args = [db,login,password];
-        params.method = 'authenticate';
-        params.kwars = {};
+        params.db = db;
+        params.login = login;
+        params.password = password;
+//        params.args = [db,login,password];
+//        params.method = 'authenticate';
+//        params.kwars = {};
         return rpc(SERVER_URL+'/web/session/authenticate', params);
                 
 }
