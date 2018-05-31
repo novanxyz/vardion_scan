@@ -114,9 +114,8 @@
         <allow-intent href="itms-apps:*" />
     </platform>
     <plugin name="cordova-plugin-file" spec="~6.0.1" />
-    <plugin name="cordova-plugin-whitelist" spec="~1.2.2" />
     <allow-navigation href="http://stock.vardion.com/*" />
-    <access origin="http://stock.vardion.com" /> 
-   <plugin name="cordova-plugin-file-transfer" spec="~1.5.1" />
-
+    <access origin="http://stock.vardion.com" />
+    <plugin name="cordova-plugin-file-transfer" spec="~1.5.1" />
+    <plugin name="cordova-plugin-whitelist" spec="~1.2.2" />
 </widget>

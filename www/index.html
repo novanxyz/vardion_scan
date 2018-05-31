@@ -4,10 +4,8 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta content="initial-scale=1, shrink-to-fit=no, width=device-width" name="viewport">
-    <!-- CSS -->
-    <!-- Add Material font (Roboto) and Material icon as needed -->
+    
     <link href="font/font.css" rel="stylesheet">
-    <!-- Add Material CSS, replace Bootstrap CSS -->
     <link href="css/material.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 
@@ -223,11 +221,8 @@
     <script src="js/scan/main.js"></script>
     <script type="text/javascript">
         $.urlParam = function(url,name){
-            var results = new RegExp('[\?&]' + name + '=([^]*)').exec(url);
-            if (results==null){
-                return null;
-            }
-            return results[1] || 0;            
+            var results = new RegExp('[\?&]' + name + '=([^]*)').exec(url);            
+            return results ? results[1] :0;
         }
         $().ready(function(){
             var app = new App('stock');            

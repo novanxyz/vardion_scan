@@ -338,11 +338,10 @@ App.Execute = Backbone.View.extend({
         var ops  =$(ev.currentTarget).closest('.operation');                        
         var ordered_qty = ops.data('ordered_qty')
         var done_qty = parseFloat(ev.currentTarget.value);                
-        ops.removeClass('success');
+        ops.removeClass('success').parent().prepend(ops);
         if ( done_qty == ordered_qty ) ops.addClass('success');
         if ( done_qty > ordered_qty ) alert("Working quantity already exceed to do quantity.\nPlease check your demand and fulfilment");
-        if ( done_qty < 0 ) alert("You cannot do negative operation.\nPlease consult to your manager");
-        ops.parent().prepend(ops);
+        if ( done_qty < 0 ) alert("You cannot do negative operation.\nPlease consult to your manager");        
     },
     on_scan:function(code){        
         if ($(':input:focus,textarea:focus').length) return;

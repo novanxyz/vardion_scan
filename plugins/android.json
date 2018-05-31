@@ -33,6 +33,9 @@
     },
     "cordova-plugin-file": {
       "PACKAGE_NAME": "com.vardion.stock.scan"
+    },
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "com.vardion.stock.scan"
     }
   },
   "dependent_plugins": {}
